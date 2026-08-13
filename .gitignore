@@ -1,0 +1,4 @@
+__pycache__/
+*.pyc
+*.log
+pt_estado_*.json
