@@ -1615,10 +1615,12 @@ function _drawHotspots() {{
   const hs = _curPlan==='pampa' ? PLANO_PAMPA_HS : PLANO_PARQUES_HS;
   hs.forEach(h=>{{
     const col  = FRENTE_COLOR[h.frente]||'#888';
-    const x    = offX + (h.xPct/100)*W;
-    const y    = offY + (h.yPct/100)*H;
-    const rw   = (h.wPct/100)*W;
-    const rh   = (h.hPct/100)*H;
+    const tcx  = offX + (h.xPct/100)*W + (h.wPct/200)*W;
+    const tcy  = offY + (h.yPct/100)*H + (h.hPct/200)*H;
+    const rw   = Math.max((h.wPct/100)*W, 0.12*W);
+    const rh   = Math.max((h.hPct/100)*H, 0.065*H);
+    const x    = tcx - rw/2;
+    const y    = tcy - rh/2;
     const lbl  = h.unit||h.label||h.frente;
 
     const rect = document.createElementNS('http://www.w3.org/2000/svg','rect');
