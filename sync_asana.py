@@ -71,7 +71,7 @@ def pull():
     print("   Leyendo tareas...")
     tasks = get_paged("/tasks",
         {"project": PROJECT_GID,
-         "opt_fields": "gid,name,due_on,memberships.section.gid"})
+         "opt_fields": "gid,name,due_on,memberships.section.gid,tags,tags.name"})
     print(f"   Tareas: {len(tasks)}")
 
     with open(DATA_FILE, encoding="utf-8") as f:
@@ -98,6 +98,46 @@ def pull():
             print(f"   R-{rid:03d}: fecha → {due}")
             r["fechaCompromiso"] = due
             changes += 1
+
+    # Tareas "Principal": una tarea agrupa varios frentes por tags
+    # Título: "[Material] (Principal)" · Tags = nombres de frente
+    by_mat_frente = {}
+    for r in restricciones:
+        key = (r.get("material", "").strip(), r.get("frente", "").strip())
+        by_mat_frente[key] = r
+
+    for task in tasks:
+        name = task.get("name", "")
+        if "(Principal)" not in name:
+            continue
+        material = name.replace("(Principal)", "").strip()
+        tag_names = {t["name"] for t in (task.get("tags") or [])}
+        if not tag_names:
+            continue
+        # Stage de la sección en que está
+        new_stage = None
+        for m in (task.get("memberships") or []):
+            sec_gid = (m.get("section") or {}).get("gid")
+            s = sec_map.get(sec_gid)
+            if s:
+                new_stage = s
+                break
+        if not new_stage:
+            continue
+        due = task.get("due_on")
+        for frente in tag_names:
+            r = by_mat_frente.get((material, frente))
+            if not r:
+                continue
+            rid = r["id"]
+            if r.get("estado") != new_stage:
+                print(f"   R-{rid:03d} [Principal {material}]: {r.get('estado')} → {new_stage}")
+                r["estado"] = new_stage
+                changes += 1
+            if due and r.get("fechaCompromiso") != due:
+                print(f"   R-{rid:03d} [Principal]: fecha → {due}")
+                r["fechaCompromiso"] = due
+                changes += 1
 
     # Remover restricciones cuya tarea fue eliminada en Asana
     active_gids = {t["gid"] for t in tasks}
