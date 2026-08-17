@@ -79,6 +79,9 @@ def pull():
         key = (r.get("material", "").strip(), r.get("frente", "").strip())
         by_mat_frente[key] = r
 
+    # Pares (material, frente) cubiertos por alguna tarea Principal activa
+    covered_pairs = set()
+
     changes = 0
     for task in tasks:
         if task.get("completed"):
@@ -97,6 +100,9 @@ def pull():
         frente_names = {opt["name"] for opt in (ubicacion.get("multi_enum_values") or [])} if ubicacion else set()
         if not frente_names:
             continue
+
+        for frente in frente_names:
+            covered_pairs.add((material, frente))
 
         new_stage = None
         for m in (task.get("memberships") or []):
@@ -122,6 +128,19 @@ def pull():
                 print(f"   R-{rid:03d}: fecha → {due}")
                 r["fechaCompromiso"] = due
                 changes += 1
+
+    # Eliminar restricciones no cubiertas por ninguna tarea Principal activa
+    # (solo si Asana devolvió al menos alguna tarea Principal para evitar borrado accidental)
+    if covered_pairs:
+        before = len(restricciones)
+        restricciones = [
+            r for r in restricciones
+            if (r.get("material", "").strip(), r.get("frente", "").strip()) in covered_pairs
+        ]
+        removed = before - len(restricciones)
+        if removed > 0:
+            print(f"   Eliminadas {removed} restricciones sin tarea Principal en Asana")
+            changes += removed
 
     print(f"   Cambios: {changes}")
     if changes == 0:
