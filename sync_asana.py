@@ -67,7 +67,7 @@ def pull():
     print("   Leyendo tareas...")
     tasks = get_paged("/tasks",
         {"project": PROJECT_GID,
-         "opt_fields": "gid,name,due_on,memberships.section.gid,tags,tags.name,completed"})
+         "opt_fields": "gid,name,due_on,memberships.section.gid,tags,tags.name,completed,custom_fields,custom_fields.name,custom_fields.display_value,custom_fields.enum_value,custom_fields.multi_enum_values"})
     print(f"   Tareas: {len(tasks)}")
 
     with open(DATA_FILE, encoding="utf-8") as f:
@@ -83,7 +83,10 @@ def pull():
     for task in tasks:
         if "(Principal)" in task.get("name", ""):
             tags = [t["name"] for t in (task.get("tags") or [])]
+            cfs = task.get("custom_fields") or []
             print(f"   [DEBUG] '{task['name']}' completed={task.get('completed')} tags={tags}")
+            for cf in cfs:
+                print(f"          CF: name={cf.get('name')} display={cf.get('display_value')} enum={cf.get('enum_value')} multi={cf.get('multi_enum_values')}")
 
     changes = 0
     for task in tasks:
