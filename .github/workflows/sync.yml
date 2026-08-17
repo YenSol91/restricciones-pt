@@ -28,6 +28,9 @@ jobs:
           ASANA_TOKEN: ${{ secrets.ASANA_TOKEN }}
         run: python sync_asana.py --pull
 
+      - name: Reconstruir HTML
+        run: python build_guide.py
+
       - name: Commit y push cambios
         run: |
           git config --global user.name  "Asana Sync Bot"
