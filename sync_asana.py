@@ -69,9 +69,12 @@ def pull():
     print(f"   Secciones: {len(sec_map)}")
 
     print("   Leyendo tareas...")
+    # completed_since="1970-01-01" trae TODAS las tareas (incompletas + completadas)
+    # así la detección de borrado no confunde "completada" con "eliminada"
     tasks = get_paged("/tasks",
         {"project": PROJECT_GID,
-         "opt_fields": "gid,name,due_on,memberships.section.gid,tags,tags.name"})
+         "completed_since": "1970-01-01",
+         "opt_fields": "gid,name,due_on,memberships.section.gid,tags,tags.name,completed"})
     print(f"   Tareas: {len(tasks)}")
 
     with open(DATA_FILE, encoding="utf-8") as f:
@@ -80,6 +83,8 @@ def pull():
 
     changes = 0
     for task in tasks:
+        if task.get("completed"):
+            continue  # completadas no actualizan estado
         rid = gid_inv.get(task["gid"])
         if rid is None or rid not in by_id:
             continue
@@ -107,6 +112,8 @@ def pull():
         by_mat_frente[key] = r
 
     for task in tasks:
+        if task.get("completed"):
+            continue
         name = task.get("name", "")
         if "(Principal)" not in name:
             continue
@@ -139,16 +146,20 @@ def pull():
                 r["fechaCompromiso"] = due
                 changes += 1
 
-    # Remover restricciones cuya tarea fue eliminada en Asana
+    # Remover restricciones cuya tarea fue REALMENTE eliminada en Asana
+    # (active_gids incluye completadas, gracias al completed_since="1970-01-01")
     active_gids = {t["gid"] for t in tasks}
     deleted_rids = set()
-    for gid, rid in gid_inv.items():
-        if gid not in active_gids and rid in by_id:
-            print(f"   R-{rid:03d}: eliminada en Asana → removiendo")
-            deleted_rids.add(rid)
-    if deleted_rids:
-        restricciones = [r for r in restricciones if r["id"] not in deleted_rids]
-        changes += len(deleted_rids)
+    if len(tasks) >= 5:  # safety: si la API retornó muy pocas tareas, no borrar
+        for gid, rid in gid_inv.items():
+            if gid not in active_gids and rid in by_id:
+                print(f"   R-{rid:03d}: eliminada en Asana → removiendo")
+                deleted_rids.add(rid)
+        if deleted_rids:
+            restricciones = [r for r in restricciones if r["id"] not in deleted_rids]
+            changes += len(deleted_rids)
+    else:
+        print(f"   ADVERTENCIA: solo {len(tasks)} tareas retornadas, omitiendo borrado automático")
 
     print(f"   Cambios: {changes} ({len(deleted_rids)} eliminadas en Asana)")
     if changes == 0:
