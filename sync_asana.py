@@ -87,10 +87,6 @@ def pull():
         if task.get("completed"):
             continue
         name = task.get("name", "")
-        if "(Principal)" not in name:
-            continue
-
-        material = name.replace("(Principal)", "").strip()
 
         # Los frentes vienen del custom field "Ubicación" (multi-select)
         ubicacion = next(
@@ -100,6 +96,8 @@ def pull():
         frente_names = {opt["name"] for opt in (ubicacion.get("multi_enum_values") or [])} if ubicacion else set()
         if not frente_names:
             continue
+
+        material = name.replace("(Principal)", "").strip()
 
         for frente in frente_names:
             covered_pairs.add((material, frente))
