@@ -36,19 +36,61 @@ else:
     _pampa_hs  = []
 
 _PARQUES_ZONES = [
-    {"frente":"THS P1",      "label":"THS P1", "xPct":42.5,"yPct":9.5, "wPct":20, "hPct":15},
-    {"frente":"AP1 P1",      "label":"AP1 P1", "xPct":67,  "yPct":9.5, "wPct":22, "hPct":7 },
-    {"frente":"AP2 P1",      "label":"AP2 P1", "xPct":60,  "yPct":18.5,"wPct":27, "hPct":6 },
-    {"frente":"THS P2",      "label":"THS P2", "xPct":22,  "yPct":19,  "wPct":17, "hPct":12},
-    {"frente":"THC P2",      "label":"THC P2", "xPct":38,  "yPct":18.5,"wPct":9,  "hPct":11},
-    {"frente":"Tempisque P2","label":"TMP P2", "xPct":27,  "yPct":30,  "wPct":13, "hPct":7 },
-    {"frente":"Casitas P2",  "label":"CAS P2", "xPct":12,  "yPct":27,  "wPct":9,  "hPct":11},
-    {"frente":"APP3 P3",     "label":"APP3",   "xPct":72,  "yPct":30,  "wPct":17, "hPct":33},
-    {"frente":"THC P3P4",    "label":"THC P3", "xPct":46.5,"yPct":31,  "wPct":9,  "hPct":5 },
-    {"frente":"THS P4",      "label":"THS P4", "xPct":22,  "yPct":41,  "wPct":24, "hPct":18},
-    {"frente":"Tempisque P4","label":"TMP P4", "xPct":41,  "yPct":44,  "wPct":18, "hPct":12},
-    {"frente":"Casitas P3",  "label":"CAS P3", "xPct":15,  "yPct":46,  "wPct":9,  "hPct":6 },
-    {"frente":"Vereda P2",   "label":"VER P2", "xPct":2.5, "yPct":46,  "wPct":12, "hPct":28},
+    {"unit":"APP 1",    "frente":"AP1 P1",       "xPct":75.25,"yPct":13.54,"wPct":4,"hPct":3},
+    {"unit":"APP 2",    "frente":"AP2 P1",        "xPct":69.70,"yPct":22.46,"wPct":4,"hPct":3},
+    {"unit":"APP 3",    "frente":"APP3 P3",       "xPct":67.25,"yPct":36.63,"wPct":4,"hPct":3},
+    {"unit":"APP 4",    "frente":"APP3 P3",       "xPct":69.59,"yPct":46.88,"wPct":4,"hPct":3},
+    {"unit":"APP 5",    "frente":"APP3 P3",       "xPct":76.37,"yPct":58.38,"wPct":4,"hPct":3},
+    {"unit":"AP STD 1", "frente":"AP STD 1",      "xPct":17.92,"yPct":21.46,"wPct":4,"hPct":3},
+    {"unit":"AP STD 1", "frente":"AP STD 1",      "xPct":74.37,"yPct":71.30,"wPct":4,"hPct":3},
+    {"unit":"CLUB HOUSE","frente":"CLUB HOUSE",   "xPct":42.37,"yPct":70.64,"wPct":4,"hPct":3},
+    {"unit":"THA 101",  "frente":"THS P1",        "xPct":63.14,"yPct":11.12,"wPct":4,"hPct":3},
+    {"unit":"THA 102",  "frente":"THS P1",        "xPct":59.70,"yPct":11.12,"wPct":4,"hPct":3},
+    {"unit":"THA 103",  "frente":"THS P1",        "xPct":56.70,"yPct":11.20,"wPct":4,"hPct":3},
+    {"unit":"THA 104",  "frente":"THS P1",        "xPct":53.59,"yPct":11.20,"wPct":4,"hPct":3},
+    {"unit":"THS 105",  "frente":"THS P1",        "xPct":47.81,"yPct":14.87,"wPct":4,"hPct":3},
+    {"unit":"THS 106",  "frente":"THS P1",        "xPct":50.48,"yPct":18.45,"wPct":4,"hPct":3},
+    {"unit":"THS 107",  "frente":"THS P1",        "xPct":51.81,"yPct":20.46,"wPct":4,"hPct":3},
+    {"unit":"THS 108",  "frente":"THS P1",        "xPct":53.14,"yPct":22.54,"wPct":4,"hPct":3},
+    {"unit":"THS 109",  "frente":"THS P1",        "xPct":55.03,"yPct":25.12,"wPct":4,"hPct":3},
+    {"unit":"THC 204",  "frente":"THC P2",        "xPct":39.81,"yPct":19.87,"wPct":4,"hPct":3},
+    {"unit":"THC 207",  "frente":"THC P2",        "xPct":46.03,"yPct":28.29,"wPct":4,"hPct":3},
+    {"unit":"THC 415",  "frente":"THC P3P4",      "xPct":39.81,"yPct":39.54,"wPct":4,"hPct":3},
+    {"unit":"THC 301",  "frente":"THC P3P4",      "xPct":51.37,"yPct":36.63,"wPct":4,"hPct":3},
+    {"unit":"THS 201",  "frente":"THS P2",        "xPct":30.59,"yPct":23.29,"wPct":4,"hPct":3},
+    {"unit":"THS 202",  "frente":"THS P2",        "xPct":33.59,"yPct":22.29,"wPct":4,"hPct":3},
+    {"unit":"THS 203",  "frente":"THS P2",        "xPct":36.59,"yPct":21.21,"wPct":4,"hPct":3},
+    {"unit":"THS 205",  "frente":"THS P2",        "xPct":43.03,"yPct":23.29,"wPct":4,"hPct":3},
+    {"unit":"THS 206",  "frente":"THS P2",        "xPct":44.48,"yPct":25.54,"wPct":4,"hPct":3},
+    {"unit":"THS 302",  "frente":"THS P4",        "xPct":51.70,"yPct":39.46,"wPct":4,"hPct":3},
+    {"unit":"THS 303",  "frente":"THS P4",        "xPct":52.59,"yPct":41.71,"wPct":4,"hPct":3},
+    {"unit":"THS 304",  "frente":"THS P4",        "xPct":54.48,"yPct":43.88,"wPct":4,"hPct":3},
+    {"unit":"THS 305",  "frente":"THS P4",        "xPct":56.03,"yPct":45.80,"wPct":4,"hPct":3},
+    {"unit":"THS 413",  "frente":"THS P4",        "xPct":33.03,"yPct":42.46,"wPct":4,"hPct":3},
+    {"unit":"THS 414",  "frente":"THS P4",        "xPct":36.03,"yPct":40.96,"wPct":4,"hPct":3},
+    {"unit":"THS 402",  "frente":"THS P4",        "xPct":42.37,"yPct":43.54,"wPct":4,"hPct":3},
+    {"unit":"THS 403",  "frente":"THS P4",        "xPct":44.03,"yPct":45.63,"wPct":4,"hPct":3},
+    {"unit":"THA 407",  "frente":"THS P4",        "xPct":44.48,"yPct":56.97,"wPct":4,"hPct":3},
+    {"unit":"THA 408",  "frente":"THS P4",        "xPct":41.14,"yPct":57.55,"wPct":4,"hPct":3},
+    {"unit":"THA 409",  "frente":"THS P4",        "xPct":38.25,"yPct":58.22,"wPct":4,"hPct":3},
+    {"unit":"THA 410",  "frente":"THS P4",        "xPct":35.37,"yPct":58.88,"wPct":4,"hPct":3},
+    {"unit":"THA 501",  "frente":"THS P4",        "xPct":67.03,"yPct":59.47,"wPct":4,"hPct":3},
+    {"unit":"THA 502",  "frente":"THS P4",        "xPct":64.03,"yPct":61.13,"wPct":4,"hPct":3},
+    {"unit":"THC 503",  "frente":"THC P3P4",      "xPct":58.03,"yPct":65.63,"wPct":4,"hPct":3},
+    {"unit":"THC 504",  "frente":"THC P3P4",      "xPct":60.59,"yPct":68.05,"wPct":4,"hPct":3},
+    {"unit":"SFS 213",  "frente":"Casitas P2",    "xPct":29.03,"yPct":34.71,"wPct":4,"hPct":3},
+    {"unit":"SFS 214",  "frente":"Casitas P2",    "xPct":20.25,"yPct":37.96,"wPct":4,"hPct":3},
+    {"unit":"SFS 215",  "frente":"Casitas P2",    "xPct":15.92,"yPct":32.04,"wPct":4,"hPct":3},
+    {"unit":"SFS 411",  "frente":"Casitas P3",    "xPct":30.48,"yPct":52.21,"wPct":4,"hPct":3},
+    {"unit":"SFS 412",  "frente":"Casitas P3",    "xPct":26.59,"yPct":45.96,"wPct":4,"hPct":3},
+    {"unit":"AFH 208",  "frente":"Tempisque P2",  "xPct":41.92,"yPct":30.62,"wPct":4,"hPct":3},
+    {"unit":"AFH 209",  "frente":"Tempisque P2",  "xPct":38.37,"yPct":31.79,"wPct":4,"hPct":3},
+    {"unit":"AFH 210",  "frente":"Tempisque P2",  "xPct":35.25,"yPct":32.79,"wPct":4,"hPct":3},
+    {"unit":"AFH 306",  "frente":"Tempisque P4",  "xPct":58.03,"yPct":48.38,"wPct":4,"hPct":3},
+    {"unit":"AFH 307",  "frente":"Tempisque P4",  "xPct":60.59,"yPct":50.71,"wPct":4,"hPct":3},
+    {"unit":"AFH 404",  "frente":"Tempisque P4",  "xPct":46.92,"yPct":48.38,"wPct":4,"hPct":3},
+    {"unit":"AFH 405",  "frente":"Tempisque P4",  "xPct":48.37,"yPct":50.46,"wPct":4,"hPct":3},
+    {"unit":"AFH 406",  "frente":"Tempisque P4",  "xPct":50.48,"yPct":52.80,"wPct":4,"hPct":3},
 ]
 _parques_hs   = _PARQUES_ZONES
 _pampa_hs_js  = json.dumps(_pampa_hs,   ensure_ascii=False)
@@ -1615,10 +1657,11 @@ function _drawHotspots() {{
   const hs = _curPlan==='pampa' ? PLANO_PAMPA_HS : PLANO_PARQUES_HS;
   hs.forEach(h=>{{
     const col  = FRENTE_COLOR[h.frente]||'#888';
+    const _isPampa = _curPlan === 'pampa';
     const tcx  = offX + (h.xPct/100)*W + (h.wPct/200)*W;
     const tcy  = offY + (h.yPct/100)*H + (h.hPct/200)*H;
-    const rw   = Math.max((h.wPct/100)*W, 0.12*W);
-    const rh   = Math.max((h.hPct/100)*H, 0.065*H);
+    const rw   = _isPampa ? Math.max((h.wPct/100)*W, 0.12*W) : (h.wPct/100)*W;
+    const rh   = _isPampa ? Math.max((h.hPct/100)*H, 0.065*H) : (h.hPct/100)*H;
     const x    = tcx - rw/2;
     const y    = tcy - rh/2;
     const lbl  = h.unit||h.label||h.frente;
