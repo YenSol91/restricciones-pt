@@ -67,7 +67,7 @@ def pull():
     print("   Leyendo tareas...")
     tasks = get_paged("/tasks",
         {"project": PROJECT_GID,
-         "opt_fields": "gid,name,due_on,memberships.section.gid,tags,tags.name,completed,custom_fields,custom_fields.name,custom_fields.display_value,custom_fields.enum_value,custom_fields.multi_enum_values"})
+         "opt_fields": "gid,name,due_on,memberships.section.gid,completed,custom_fields,custom_fields.name,custom_fields.multi_enum_values,custom_fields.multi_enum_values.name"})
     print(f"   Tareas: {len(tasks)}")
 
     with open(DATA_FILE, encoding="utf-8") as f:
@@ -79,15 +79,6 @@ def pull():
         key = (r.get("material", "").strip(), r.get("frente", "").strip())
         by_mat_frente[key] = r
 
-    # Debug: mostrar todas las tareas Principal encontradas
-    for task in tasks:
-        if "(Principal)" in task.get("name", ""):
-            tags = [t["name"] for t in (task.get("tags") or [])]
-            cfs = task.get("custom_fields") or []
-            print(f"   [DEBUG] '{task['name']}' completed={task.get('completed')} tags={tags}")
-            for cf in cfs:
-                print(f"          CF: name={cf.get('name')} display={cf.get('display_value')} enum={cf.get('enum_value')} multi={cf.get('multi_enum_values')}")
-
     changes = 0
     for task in tasks:
         if task.get("completed"):
@@ -97,8 +88,14 @@ def pull():
             continue
 
         material = name.replace("(Principal)", "").strip()
-        tag_names = {t["name"] for t in (task.get("tags") or [])}
-        if not tag_names:
+
+        # Los frentes vienen del custom field "Ubicación" (multi-select)
+        ubicacion = next(
+            (cf for cf in (task.get("custom_fields") or []) if cf.get("name") == "Ubicación"),
+            None
+        )
+        frente_names = {opt["name"] for opt in (ubicacion.get("multi_enum_values") or [])} if ubicacion else set()
+        if not frente_names:
             continue
 
         new_stage = None
@@ -112,7 +109,7 @@ def pull():
             continue
 
         due = task.get("due_on")
-        for frente in tag_names:
+        for frente in frente_names:
             r = by_mat_frente.get((material, frente))
             if not r:
                 continue
