@@ -5,6 +5,15 @@ HERE = Path(__file__).parent
 with open(HERE / 'restricciones_data.json', encoding='utf-8') as f:
     restricciones = json.load(f)
 
+_gid_path = HERE / 'asana_task_gids.json'
+if _gid_path.exists():
+    with open(_gid_path, encoding='utf-8') as _gf:
+        _gid_map = {int(k): v for k, v in json.load(_gf).get('tasks', {}).items()}
+    for _r in restricciones:
+        _g = _gid_map.get(_r.get('id'))
+        if _g:
+            _r['gid'] = _g
+
 ACTIVIDADES = {
     "Tempisque 500":  ["2da mano","Armadura vigas","Block","Caña","Columnas de madera","Cubierta","Enchape","Hojalateria","Louvers/Fachada","Mobiliario","Obra exterior","Plaqueria/loza sanitaria","Policarbonato","Puertas","Repello Fino","Repello Grueso","Rodapié","Sello y 1era mano","Sisas","Tapicheles","Techo","Teja","Ventanería"],
     "Tempisque 600":  ["2da mano","Armadura vigas","Block","Caña","Columnas de madera","Cubierta","Enchape","Hojalateria","Louvers/Fachada","Mobiliario","Obra exterior","Plaqueria/loza sanitaria","Policarbonato","Puertas","Repello Fino","Repello Grueso","Rodapié","Sello y 1era mano","Sisas","Tapicheles","Techo","Teja","Ventanería"],
@@ -493,9 +502,12 @@ mark{{background:#FFF176;color:inherit;border-radius:2px;padding:0 1px}}
 #fp-close{{width:24px;height:24px;border-radius:50%;display:flex;align-items:center;justify-content:center;color:var(--ink-2);font-size:12px;flex-shrink:0}}
 #fp-close:hover{{background:var(--zone-bg)}}
 #fp-body{{flex:1;overflow-y:auto;padding:10px 14px;display:flex;flex-direction:column;gap:7px;min-width:320px}}
-.fp-card{{background:var(--bg);border:1px solid var(--border);border-radius:var(--r);padding:9px 11px;cursor:pointer;transition:border-color .12s}}
+.fp-card{{background:var(--bg);border:1px solid var(--border);border-radius:var(--r);padding:9px 11px;transition:border-color .12s}}
 .fp-card:hover{{border-color:var(--accent-mid);background:var(--accent-faint)}}
+.fp-mat-row{{display:flex;align-items:flex-start;gap:6px}}
 .fp-mat{{font-size:12px;font-weight:700;color:var(--ink);line-height:1.3;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}}
+.fp-asana-btn{{font-size:9px;font-weight:700;padding:2px 6px;border-radius:3px;background:var(--accent);color:#fff;text-decoration:none;white-space:nowrap;flex-shrink:0;opacity:.8}}
+.fp-asana-btn:hover{{opacity:1}}
 .fp-sub{{font-size:10px;color:var(--ink-3);margin-top:1px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}}
 .fp-row{{display:flex;align-items:center;gap:5px;margin-top:5px}}
 .fp-stage{{font-size:9px;font-weight:800;padding:2px 6px;border-radius:3px;color:#fff;flex-shrink:0}}
@@ -1718,10 +1730,14 @@ function selectFrente(frente) {{
       const sub  = r.frente+(r.actividad?' — '+r.actividad:'');
       const resp = getCustomResp(r);
       const fecha= getCustomDate(r)||'';
-      return `<div class="fp-card" onclick="goToCard(${{r.id}})">
-        <div class="fp-mat">${{mat}}</div>
-        <div class="fp-sub">${{sub}}</div>
-        <div class="fp-row">
+      const asanaUrl = r.gid ? `https://app.asana.com/0/1217441236213348/${{r.gid}}/f` : '';
+      return `<div class="fp-card">
+        <div class="fp-mat-row">
+          <span class="fp-mat" onclick="goToCard(${{r.id}})" style="cursor:pointer;flex:1">${{mat}}</span>
+          ${{asanaUrl ? `<a href="${{asanaUrl}}" target="_blank" class="fp-asana-btn" title="Editar en Asana" onclick="event.stopPropagation()">&#x2197; Asana</a>` : ''}}
+        </div>
+        <div class="fp-sub" onclick="goToCard(${{r.id}})" style="cursor:pointer">${{sub}}</div>
+        <div class="fp-row" onclick="goToCard(${{r.id}})" style="cursor:pointer">
           <span class="fp-stage" style="background:var(--${{cls}})">${{STAGE_LABEL[stg]}}</span>
           <span class="fp-resp">${{resp}}</span>
           ${{fecha?`<span class="fp-date">${{fecha.slice(0,7)}}</span>`:''}}
