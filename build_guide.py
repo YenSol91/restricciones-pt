@@ -1730,10 +1730,12 @@ function selectFrente(frente) {{
     }}).join('');
   }}
   document.getElementById('frente-panel').classList.add('open');
+  setTimeout(_drawHotspots, 240);
 }}
 
 function closeFrentePanel(){{
   document.getElementById('frente-panel').classList.remove('open');
+  setTimeout(_drawHotspots, 240);
 }}
 
 function goToCard(id){{
