@@ -79,6 +79,12 @@ def pull():
         key = (r.get("material", "").strip(), r.get("frente", "").strip())
         by_mat_frente[key] = r
 
+    # Debug: mostrar todas las tareas Principal encontradas
+    for task in tasks:
+        if "(Principal)" in task.get("name", ""):
+            tags = [t["name"] for t in (task.get("tags") or [])]
+            print(f"   [DEBUG] '{task['name']}' completed={task.get('completed')} tags={tags}")
+
     changes = 0
     for task in tasks:
         if task.get("completed"):
