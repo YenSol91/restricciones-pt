@@ -99,7 +99,18 @@ def pull():
             r["fechaCompromiso"] = due
             changes += 1
 
-    print(f"   Cambios: {changes}")
+    # Remover restricciones cuya tarea fue eliminada en Asana
+    active_gids = {t["gid"] for t in tasks}
+    deleted_rids = set()
+    for gid, rid in gid_inv.items():
+        if gid not in active_gids and rid in by_id:
+            print(f"   R-{rid:03d}: eliminada en Asana → removiendo")
+            deleted_rids.add(rid)
+    if deleted_rids:
+        restricciones = [r for r in restricciones if r["id"] not in deleted_rids]
+        changes += len(deleted_rids)
+
+    print(f"   Cambios: {changes} ({len(deleted_rids)} eliminadas en Asana)")
     if changes == 0:
         print("   Sin cambios.")
         return False
