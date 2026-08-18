@@ -495,13 +495,14 @@ mark{{background:#FFF176;color:inherit;border-radius:2px;padding:0 1px}}
 #plano-img{{max-width:900px;width:100%;display:block;height:auto;border-radius:4px;box-shadow:var(--sh2)}}
 .plano-svg-layer{{position:absolute;top:0;left:0;width:100%;height:100%;pointer-events:none}}
 #frente-panel{{width:0;overflow:hidden;background:var(--surface);border-left:1px solid var(--border);transition:width .22s ease;display:flex;flex-direction:column;flex-shrink:0}}
-#frente-panel.open{{width:320px}}
-#fp-top{{padding:12px 14px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:8px;flex-shrink:0;min-width:320px}}
+#frente-panel.open{{width:400px}}
+@media(max-width:700px){{#frente-panel.open{{width:100%;max-width:100%}}}}
+#fp-top{{padding:12px 14px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:8px;flex-shrink:0;min-width:400px;flex-wrap:wrap}}
 #fp-name{{font-size:14px;font-weight:800;color:var(--ink);flex:1}}
-#fp-count{{font-size:10px;color:var(--ink-3);background:var(--zone-bg);padding:2px 8px;border-radius:10px;white-space:nowrap}}
+#fp-count{{display:flex;gap:4px;flex-wrap:wrap;align-items:center}}
 #fp-close{{width:24px;height:24px;border-radius:50%;display:flex;align-items:center;justify-content:center;color:var(--ink-2);font-size:12px;flex-shrink:0}}
 #fp-close:hover{{background:var(--zone-bg)}}
-#fp-body{{flex:1;overflow-y:auto;padding:10px 14px;display:flex;flex-direction:column;gap:7px;min-width:320px}}
+#fp-body{{flex:1;overflow-y:auto;padding:10px 14px;display:flex;flex-direction:column;gap:7px;min-width:400px}}
 .fp-card{{background:var(--bg);border:1px solid var(--border);border-radius:var(--r);padding:9px 11px;transition:border-color .12s}}
 .fp-card:hover{{border-color:var(--accent-mid);background:var(--accent-faint)}}
 .fp-mat-row{{display:flex;align-items:flex-start;gap:6px}}
@@ -1718,33 +1719,57 @@ function _drawHotspots() {{
 function selectFrente(frente) {{
   const rs = allR().filter(r=>r.frente===frente);
   document.getElementById('fp-name').textContent = frente;
-  document.getElementById('fp-count').textContent = rs.length+' restricciones';
+  const stageCounts={{}};
+  STAGES.forEach(s=>stageCounts[s]=rs.filter(r=>getStage(r)===s).length);
+  const badges=STAGES.filter(s=>stageCounts[s]>0)
+    .map(s=>`<span class="badge b-${{STAGE_CLS[s]}}">${{stageCounts[s]}} ${{STAGE_LABEL[s]}}</span>`).join(' ');
+  document.getElementById('fp-count').innerHTML = badges||'<span class="badge b-empty">Sin restricciones</span>';
   const body = document.getElementById('fp-body');
-  if(rs.length===0){{
-    body.innerHTML='<p class="fp-empty">Sin restricciones registradas.</p>';
-  }} else {{
-    body.innerHTML = rs.map(r=>{{
-      const stg  = getStage(r);
-      const cls  = STAGE_CLS[stg]||'sin';
-      const mat  = r.material||r.titulo||'(Sin título)';
-      const sub  = r.frente+(r.actividad?' — '+r.actividad:'');
-      const resp = getCustomResp(r);
-      const fecha= getCustomDate(r)||'';
-      const asanaUrl = r.gid ? `https://app.asana.com/0/1217441236213348/${{r.gid}}/f` : '';
-      return `<div class="fp-card">
-        <div class="fp-mat-row">
-          <span class="fp-mat" onclick="goToCard(${{r.id}})" style="cursor:pointer;flex:1">${{mat}}</span>
-          ${{asanaUrl ? `<a href="${{asanaUrl}}" target="_blank" class="fp-asana-btn" title="Editar en Asana" onclick="event.stopPropagation()">&#x2197; Asana</a>` : ''}}
+  const acts = (ACTIVIDADES[frente]||[]);
+  const actsHtml = acts.length ? `<div class="acts-strip">
+    <span class="acts-label">Actividades ago-sep</span>
+    ${{acts.map(a=>`<span class="act-chip">${{a}}</span>`).join('')}}
+  </div>` : '';
+  const cardsHtml = rs.map(r=>{{
+    const stg  = getStage(r);
+    const cls  = STAGE_CLS[stg]||'sin';
+    const mat  = r.material||r.titulo||'(Sin título)';
+    const resp = getCustomResp(r);
+    const fecha= getCustomDate(r)||'';
+    const od   = daysOverdue(r);
+    const asanaUrl = r.gid ? `https://app.asana.com/0/1217441236213348/${{r.gid}}/f` : '';
+    return `<div class="rcard" onclick="goToCard(${{r.id}})" style="cursor:pointer">
+      <div class="rcard-head" style="pointer-events:none">
+        <div class="rcard-stripe st-${{cls}}"></div>
+        <div class="rcard-main">
+          <div class="rcard-top">
+            <span class="rcard-id">R-${{String(r.id).padStart(3,'0')}}</span>
+            <span class="rcard-tipo ${{tipoClass(r.tipo)}}">${{r.tipo}}</span>
+            ${{od>0?`<span class="overdue-badge">&#9888; ${{od}}d vencida</span>`:''}}
+          </div>
+          <div class="rcard-titulo">${{r.titulo}}</div>
+          <div class="rcard-meta">
+            <span class="meta-item"><div class="prio-dot prio-${{(r.prioridad||'').toLowerCase()}}"></div>${{r.prioridad||''}}</span>
+            <span class="meta-item meta-resp">${{resp}}</span>
+            ${{mat?`<span class="meta-item">${{mat}}</span>`:''}}
+            ${{fecha?`<span class="meta-item">Hito: ${{fmtDate(fecha)}}</span>`:''}}
+          </div>
         </div>
-        <div class="fp-sub" onclick="goToCard(${{r.id}})" style="cursor:pointer">${{sub}}</div>
-        <div class="fp-row" onclick="goToCard(${{r.id}})" style="cursor:pointer">
-          <span class="fp-stage" style="background:var(--${{cls}})">${{STAGE_LABEL[stg]}}</span>
-          <span class="fp-resp">${{resp}}</span>
-          ${{fecha?`<span class="fp-date">${{fecha.slice(0,7)}}</span>`:''}}
+        <div class="rcard-right" style="pointer-events:auto">
+          <span class="stage-pill sp-${{cls}}" style="cursor:default">
+            <span class="sp-code">${{STAGE_LABEL[stg]}}</span>
+            <span class="sp-name">${{STAGE_NAME[stg]}}</span>
+          </span>
+          ${{asanaUrl?`<a href="${{asanaUrl}}" target="_blank" class="asana-link-btn" onclick="event.stopPropagation()">&#x2197; Detalle</a>`:''}}
         </div>
-      </div>`;
-    }}).join('');
-  }}
+      </div>
+    </div>`;
+  }}).join('');
+  body.innerHTML = actsHtml + (rs.length ? cardsHtml : '<p class="fp-empty">Sin restricciones registradas.</p>') +
+    `<button class="add-btn" style="margin-top:4px" onclick="event.stopPropagation();closePlanos();setTimeout(()=>openModal('','${{frente}}'),300)">
+      <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 5v14M5 12h14"/></svg>
+      Agregar restricción
+    </button>`;
   document.getElementById('frente-panel').classList.add('open');
   setTimeout(_drawHotspots, 240);
 }}
