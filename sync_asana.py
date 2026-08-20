@@ -58,49 +58,38 @@ def post_api(url, body):
 def pull():
     print("── PULL: Asana → JSON → HTML")
 
+    if not GID_FILE.exists():
+        print("   Sin asana_task_gids.json — nada que sincronizar.")
+        return False
+
+    with open(GID_FILE, encoding="utf-8") as f:
+        gid_data = json.load(f)
+    gid_map = {int(k): v for k, v in gid_data.get("tasks", {}).items()}
+    if not gid_map:
+        print("   GID map vacío."); return False
+
     sections = get_paged(f"/projects/{PROJECT_GID}/sections",
                          {"opt_fields": "gid,name"})
     sec_map = {s["gid"]: SECTION_TO_STAGE.get(s["name"]) for s in sections}
     sec_map = {k: v for k, v in sec_map.items() if v}
     print(f"   Secciones: {len(sec_map)}")
 
-    print("   Leyendo tareas...")
+    print("   Leyendo tareas del proyecto...")
     tasks = get_paged("/tasks",
         {"project": PROJECT_GID,
-         "opt_fields": "gid,name,due_on,memberships.section.gid,completed,custom_fields,custom_fields.name,custom_fields.multi_enum_values,custom_fields.multi_enum_values.name"})
-    print(f"   Tareas: {len(tasks)}")
+         "opt_fields": "gid,due_on,memberships.section.gid,completed"})
+    print(f"   Tareas en proyecto: {len(tasks)}")
+    task_by_gid = {t["gid"]: t for t in tasks}
 
     with open(DATA_FILE, encoding="utf-8") as f:
         restricciones = json.load(f)
-
-    # Índice (material, frente) → restricción para buscar por tareas Principal
-    by_mat_frente = {}
-    for r in restricciones:
-        key = (r.get("material", "").strip(), r.get("frente", "").strip())
-        by_mat_frente[key] = r
-
-    # Pares (material, frente) cubiertos por alguna tarea Principal activa
-    covered_pairs = set()
+    by_id = {r["id"]: r for r in restricciones}
 
     changes = 0
-    for task in tasks:
-        if task.get("completed"):
+    for rid, task_gid in gid_map.items():
+        task = task_by_gid.get(task_gid)
+        if not task or task.get("completed"):
             continue
-        name = task.get("name", "")
-
-        # Los frentes vienen del custom field "Ubicación" (multi-select)
-        ubicacion = next(
-            (cf for cf in (task.get("custom_fields") or []) if cf.get("name") == "Ubicación"),
-            None
-        )
-        frente_names = {opt["name"] for opt in (ubicacion.get("multi_enum_values") or [])} if ubicacion else set()
-        if not frente_names:
-            continue
-
-        material = name.replace("(Principal)", "").strip()
-
-        for frente in frente_names:
-            covered_pairs.add((material, frente))
 
         new_stage = None
         for m in (task.get("memberships") or []):
@@ -112,24 +101,19 @@ def pull():
         if not new_stage:
             continue
 
-        due = task.get("due_on")
-        for frente in frente_names:
-            r = by_mat_frente.get((material, frente))
-            if not r:
-                continue
-            rid = r["id"]
-            if r.get("estado") != new_stage:
-                print(f"   R-{rid:03d} [{material} / {frente}]: {r.get('estado')} → {new_stage}")
-                r["estado"] = new_stage
-                changes += 1
-            if due and r.get("fechaCompromiso") != due:
-                print(f"   R-{rid:03d}: fecha → {due}")
-                r["fechaCompromiso"] = due
-                changes += 1
+        r = by_id.get(rid)
+        if not r:
+            continue
 
-    # NOTA: el borrado automático está desactivado para evitar pérdida de datos
-    # por desajuste de nombres entre Asana y el JSON.
-    # Para borrar una restricción, eliminarla manualmente del JSON.
+        due = task.get("due_on")
+        if r.get("estado") != new_stage:
+            print(f"   R-{rid:03d}: {r.get('estado')} → {new_stage}")
+            r["estado"] = new_stage
+            changes += 1
+        if due and r.get("fechaCompromiso") != due:
+            print(f"   R-{rid:03d}: fecha → {due}")
+            r["fechaCompromiso"] = due
+            changes += 1
 
     print(f"   Cambios: {changes}")
     if changes == 0:
