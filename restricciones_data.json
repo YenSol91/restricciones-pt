@@ -133,7 +133,7 @@
     "frente": "Casitas P3",
     "material": "Caja de lavadora",
     "etapa": "12. Transporte local",
-    "estado": "ABIERTA",
+    "estado": "SIN_INICIAR",
     "prioridad": "Media",
     "responsable": "Y. Solano",
     "fechaId": "2026-05-31",
