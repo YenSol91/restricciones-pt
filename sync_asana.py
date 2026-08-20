@@ -127,18 +127,9 @@ def pull():
                 r["fechaCompromiso"] = due
                 changes += 1
 
-    # Eliminar restricciones no cubiertas por ninguna tarea Principal activa
-    # (solo si Asana devolvió al menos alguna tarea Principal para evitar borrado accidental)
-    if covered_pairs:
-        before = len(restricciones)
-        restricciones = [
-            r for r in restricciones
-            if (r.get("material", "").strip(), r.get("frente", "").strip()) in covered_pairs
-        ]
-        removed = before - len(restricciones)
-        if removed > 0:
-            print(f"   Eliminadas {removed} restricciones sin tarea Principal en Asana")
-            changes += removed
+    # NOTA: el borrado automático está desactivado para evitar pérdida de datos
+    # por desajuste de nombres entre Asana y el JSON.
+    # Para borrar una restricción, eliminarla manualmente del JSON.
 
     print(f"   Cambios: {changes}")
     if changes == 0:
